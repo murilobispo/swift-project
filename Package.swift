@@ -5,18 +5,32 @@ import PackageDescription
 
 let package = Package(
     name: "swift-project",
+    dependencies: [
+        // SwiftCrossUI: a cross-platform, SwiftUI-inspired declarative UI framework.
+        // We use the GtkBackend product directly (GTK 4 on Linux) instead of
+        // DefaultBackend, whose platform-conditioned dependencies trip up Swift
+        // 6.4's default `swiftbuild` engine (it tries to compile the Windows
+        // backend even on Linux).
+        .package(
+            url: "https://github.com/moreSwift/swift-cross-ui",
+            .upToNextMinor(from: "0.10.0")
+        ),
+        // ImageFormats: raw-pixel image type used to display captured camera
+        // frames. Already in the graph via SwiftCrossUI; declared here so our
+        // target can import it directly.
+        .package(
+            url: "https://github.com/stackotter/swift-image-formats",
+            .upToNextMinor(from: "0.5.0")
+        ),
+    ],
     targets: [
-        // Targets are the basic building blocks of a package, defining a module or a test suite.
-        // Targets can depend on other targets in this package and products from dependencies.
         .executableTarget(
             name: "swift_project",
-            swiftSettings: [
-                .enableUpcomingFeature("ApproachableConcurrency"),
+            dependencies: [
+                .product(name: "SwiftCrossUI", package: "swift-cross-ui"),
+                .product(name: "GtkBackend", package: "swift-cross-ui"),
+                .product(name: "ImageFormats", package: "swift-image-formats"),
             ],
-        ),
-        .testTarget(
-            name: "swift_projectTests",
-            dependencies: ["swift_project"],
             swiftSettings: [
                 .enableUpcomingFeature("ApproachableConcurrency"),
             ],
